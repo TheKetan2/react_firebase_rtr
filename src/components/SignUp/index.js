@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, withRouter } from "react-router-dom";
+import { compose } from "recompose";
 
 import * as ROUTE from "../../constants/routes";
+import { withFirebase } from "../Firebase";
 
 const SignUp = () => (
   <div>
@@ -17,7 +19,8 @@ const INITIAL_STATE = {
   passwordTwo: "",
   error: null,
 };
-class SignUpForm extends React.Component {
+
+class SignUpFromBase extends React.Component {
   constructor(props) {
     super(props);
 
@@ -26,6 +29,18 @@ class SignUpForm extends React.Component {
 
   onSubmit = (event) => {
     const { username, email, passwordOne } = this.state;
+
+    this.props.firebase
+      .doCreateUserWithEmailAndPassword(email, passwordOne)
+      .then((authUser) => {
+        this.setState({ ...INITIAL_STATE });
+        this.props.history.push(ROUTE.HOME);
+      })
+      .catch((error) => {
+        this.setState({ error });
+      });
+
+    event.preventDefault();
   };
 
   onChange = (event) => {
@@ -81,6 +96,8 @@ class SignUpForm extends React.Component {
     );
   }
 }
+
+const SignUpForm = compose(withRouter, withFirebase)(SignUpFromBase);
 
 const SignUpLink = () => (
   <p>
