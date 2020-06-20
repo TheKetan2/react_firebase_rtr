@@ -8,7 +8,7 @@ class Admin extends React.Component {
 
     this.state = {
       loading: false,
-      users: {},
+      users: [],
     };
   }
 
@@ -16,7 +16,13 @@ class Admin extends React.Component {
     this.setState({ loading: true });
 
     this.props.firebase.users().on("value", (snapshot) => {
-      this.setState({ users: snapshot.val(), loading: false });
+      const userObject = snapshot.val();
+      const userList = Object.keys(userObject).map((key) => ({
+        ...userObject[key],
+        uid: key,
+      }));
+
+      this.setState({ users: userList, loading: false });
     });
   }
 
